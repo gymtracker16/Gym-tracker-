@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gym Tracker Pro</title>
+<style>
+body{font-family:sans-serif;background:#0a0a0a;color:white;padding:15px;max-width:500px;margin:auto}
+h1{color:#00ff88;text-align:center;margin:10px}
+.card{background:#1a1a1a;padding:15px;border-radius:14px;margin:10px 0;border:1px solid #333}
+input,select,button{width:100%;padding:12px;margin:5px 0;border-radius:10px;border:none;font-size:16px;box-sizing:border-box}
+input,select{background:#222;color:white}
+button{background:#00ff88;color:black;font-weight:bold}
+.ex{padding:12px;background:#222;margin:6px 0;border-radius:10px;display:flex;justify-content:space-between;align-items:center}
+.timer{font-size:32px;text-align:center;color:#00ff88;font-weight:bold;margin:10px}
+.badge{padding:4px 8px;border-radius:20px;font-size:12px;background:#333}
+.chest{background:#ff6b6b22;color:#ff6b6b}.back{background:#4ecdc422;color:#4ecdc4}.legs{background:#ffe66d22;color:#ffe66d}
+</style>
+</head>
+<body>
+<h1>💪 Gym Tracker PRO</h1>
+
+<div class="card" id="timerCard" style="display:none">
+<div class="timer" id="timer">01:30</div>
+<div style="display:flex;gap:10px"><button onclick="stopTimer()" style="background:#333;color:white">Skip</button><button onclick="startTimer()">+30s</button></div>
+<p style="text-align:center;font-size:12px;opacity:0.6">Rest Time - Next Set Ready!</p>
+</div>
+
+<div class="card">
+<select id="cat"><option>Chest</option><option>Back</option><option>Legs</option><option>Arms</option><option>Shoulders</option><option>Abs</option></select>
+<input id="ex" placeholder="Exercise e.g. Bench Press">
+<div style="display:flex;gap:8px"><input id="wt" type="number" placeholder="Kg"><input id="rp" type="number" placeholder="Reps"></div>
+<button onclick="add()">Add Set + Start Timer</button>
+</div>
+
+<div class="card" style="display:flex;justify-content:space-between;text-align:center">
+<div><h2 id="total" style="margin:0;color:#00ff88">0</h2><small>Sets</small></div>
+<div><h2 id="vol" style="margin:0;color:#00ff88">0</h2><small>Kg Volume</small></div>
+<div><h2 id="cal" style="margin:0;color:#00ff88">0</h2><small>Est. Cal</small></div>
+</div>
+
+<div style="display:flex;gap:5px;overflow:auto;padding:5px 0">
+<button onclick="filter('All')" style="background:#00ff88;width:auto;padding:8px 15px">All</button>
+<button onclick="filter('Chest')" style="background:#222;color:white;width:auto;padding:8px 15px">Chest</button>
+<button onclick="filter('Back')" style="background:#222;color:white;width:auto;padding:8px 15px">Back</button>
+<button onclick="filter('Legs')" style="background:#222;color:white;width:auto;padding:8px 15px">Legs</button>
+</div>
+
+<div id="list"></div>
+
+<div class="card"><button onclick="clearAll()" style="background:#ff4444;color:white">Clear Today's Workout</button></div>
+
+<script>
+let data=JSON.parse(localStorage.getItem('gymPro')||'[]'), currentFilter='All', timerInt=null, timeLeft=90;
+function render(){
+ let l=document.getElementById('list');l.innerHTML='';
+ let f=data.filter(d=>currentFilter==='All'||d.cat===currentFilter);
+ let vol=0; data.forEach(d=>vol+=d.wt*d.rp);
+ document.getElementById('total').innerText=data.length;
+ document.getElementById('vol').innerText=vol;
+ document.getElementById('cal').innerText=Math.round(vol*0.05);
+ f.slice().reverse().forEach((d,i)=>{
+  let realIndex = data.length-1-f.indexOf(d);
+  l.innerHTML+=`<div class=ex><div><span class="badge ${d.cat.toLowerCase()}">${d.cat}</span><br><b>${d.ex}</b> - ${d.wt}kg x ${d.rp}</div><span onclick="del(${data.indexOf(d)})" style="color:#ff4444;padding:10px">✕</span></div>`;
+ });
+ localStorage.setItem('gymPro',JSON.stringify(data));
+}
+function add(){
+ let ex=document.getElementById('ex').value, wt=document.getElementById('wt').value, rp=document.getElementById('rp').value, cat=document.getElementById('cat').value;
+ if(!ex||!wt||!rp) return alert('Fill all fields');
+ data.push({ex,wt:parseInt(wt),rp:parseInt(rp),cat,time:Date.now()});
+ render(); startRestTimer();
+ document.getElementById('ex').value='';
+}
+function del(i){data.splice(i,1);render();}
+function clearAll(){if(confirm('Clear all?')){data=[];render();}}
+function filter(c){currentFilter=c;render();}
+function startRestTimer(){timeLeft=90;document.getElementById('timerCard').style.display='block';clearInterval(timerInt);timerInt=setInterval(()=>{
+ timeLeft--; let m=Math.floor(timeLeft/60), s=timeLeft%60;
+ document.getElementById('timer').innerText=`${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+ if(timeLeft<=0){stopTimer(); if('vibrate' in navigator) navigator.vibrate(500); alert('Rest Over! Next Set 💪');}
+},1000);}
+function startTimer(){timeLeft+=30;}
+function stopTimer(){clearInterval(timerInt);document.getElementById('timerCard').style.display='none';}
+render();
+</script>
+</body>
+                                                                                </html>
