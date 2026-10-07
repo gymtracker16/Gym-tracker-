@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Workout - No Equipment</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00ff88">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png">
+<style>body{margin:0;font-family:sans-serif;background:#0f0f0f;color:#fff;max-width:500px;margin:auto}
+.header{padding:20px;text-align:center;background:linear-gradient(135deg,#00ff88,#00ccff);color:#000;font-weight:bold;font-size:20px;position:sticky;top:0;z-index:10}
+.card{background:#1e1e1e;margin:12px;border-radius:16px;padding:14px;border:1px solid #2a2a2a}
+.routine{display:flex;gap:12px;align-items:center;padding:14px;background:#222;border-radius:14px;margin:8px 0;cursor:pointer}
+.btn{width:100%;padding:14px;background:#00ff88;color:#000;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer}
+.timer{font-size:52px;text-align:center;color:#00ff88;font-weight:bold}
+.progress{height:8px;background:#333;border-radius:10px;overflow:hidden} .progress div{height:100%;background:#00ff88;width:0%;transition:0.3s}
+.ex-item{padding:12px;background:#222;margin:6px 0;border-radius:10px;display:flex;justify-content:space-between}
+</style></head><body>
+<div class="header">🏠 HOME WORKOUT PRO - APK READY</div>
+<div class="card"><h3 style="margin:0">🔥 Streak: <span id="streak">1</span> Days | <span id="calB">0</span> kcal burned</h3><div class="progress" style="margin-top:10px"><div id="progBar"></div></div><p style="font-size:11px;opacity:0.5" id="calDate"></p></div>
+<div class="card"><h3>💪 Routines (Like Your Link)</h3>
+<div class="routine" onclick="startRoutine('Full Body 7 Min')"><span style="font-size:32px">🏋️</span><div><b>Full Body in 7 Min</b><br><small>12 ex • No Equipment</small></div></div>
+<div class="routine" onclick="startRoutine('Abs 5 Min')"><span style="font-size:32px">🔥</span><div><b>Toned Abs 5 Min</b><br><small>8 ex • Six Pack</small></div></div>
+<div class="routine" onclick="startRoutine('Legs 7 Min')"><span style="font-size:32px">🦵</span><div><b>Slender Legs 7 Min</b><br><small>10 ex • Fat Burn</small></div></div>
+<div class="routine" onclick="startRoutine('Arms 7 Min')"><span style="font-size:32px">💪</span><div><b>Sexy Arms 7 Min</b><br><small>9 ex • Upper</small></div></div>
+<div class="routine" onclick="startRoutine('Butt 7 Min')"><span style="font-size:32px">🍑</span><div><b>Butt 7 Min</b><br><small>8 ex • Glutes</small></div></div>
+</div>
+<div class="card" id="workoutCard" style="display:none"><h2 id="rTitle"></h2><div class="timer" id="timer">00:30</div><div style="text-align:center;font-size:64px" id="exIcon">🤸</div><h3 id="exName" style="text-align:center">Push Ups</h3><p style="text-align:center;opacity:0.7;font-size:13px" id="exDesc">Voice: Keep form correct</p><div class="progress"><div id="exProg"></div></div><br><div style="display:flex;gap:10px"><button class="btn" style="background:#333;color:#fff" onclick="skip()">Skip</button><button class="btn" onclick="nextEx()">Next ▶</button></div><button class="btn" style="background:#ff4444;color:#fff;margin-top:10px" onclick="stopWorkout()">Stop</button></div>
+<div class="card"><h3>📊 Weight Tracker</h3><input id="wInput" type="number" placeholder="Weight kg" style="width:100%;padding:12px;border-radius:10px;background:#222;color:#fff;border:none"><button class="btn" style="margin-top:8px" onclick="saveWeight()">Save</button><div id="wList"></div></div>
+<div class="card" style="text-align:center"><small>✅ PWA Ready - Installable as APK<br>Offline Works</small><br><button class="btn" style="margin-top:10px;background:#222;color:#fff;border:1px solid #00ff88" onclick="alert('To make APK: 1. Go to pwabuilder.com 2. Paste your site link 3. Download APK')">How to Get APK?</button></div>
+<script>
+let exList=["Jumping Jacks","Push Ups","Squats","Plank","Lunges","Crunches","Butt Bridge","Triceps Dips","Mountain Climbers","Leg Raises"],idx=0,t=30,ti=null,cal=0,weights=JSON.parse(localStorage.getItem('w')||'[]');
+document.getElementById('calDate').innerText=new Date().toDateString();
+function startRoutine(n){document.getElementById('workoutCard').style.display='block';document.getElementById('rTitle').innerText=n;idx=0;cal=0;showEx();scrollTo(0,0);}
+function showEx(){document.getElementById('exName').innerText=exList[idx%exList.length];document.getElementById('exIcon').innerText=['🤸','💪','🦵','🧘','🏃','🔥','⚡','🍑','🏋️','🦶'][idx%10];t=30;document.getElementById('exProg').style.width=((idx/exList.length)*100)+'%';startT();if('speechSynthesis' in window){speechSynthesis.speak(new SpeechSynthesisUtterance(exList[idx%exList.length]));}}
+function startT(){clearInterval(ti);ti=setInterval(()=>{t--;document.getElementById('timer').innerText='00:'+(t<10?'0'+t:t);if(t<=0)nextEx();},1000);}
+function nextEx(){cal+=15;document.getElementById('calB').innerText=cal;document.getElementById('progBar').style.width=((idx/exList.length)*100)+'%';idx++;if(idx>=exList.length){alert('Workout Done! '+cal+' kcal');stopWorkout();}else showEx();}
+function skip(){nextEx();} function stopWorkout(){clearInterval(ti);document.getElementById('workoutCard').style.display='none';}
+function saveWeight(){let v=wInput.value;if(!v)return;weights.push({w:v,d:new Date().toLocaleDateString()});localStorage.setItem('w',JSON.stringify(weights));renderW();}
+function renderW(){let h='';weights.slice().reverse().forEach(x=>h+=`<div class=ex-item><span>${x.d}</span><b>${x.w} kg</b></div>`);document.getElementById('wList').innerHTML=h;} renderW();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+</script></body></html>
