@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gym Tracker</title>
+<style>
+body{font-family:sans-serif;background:#0a0a0a;color:white;padding:20px;max-width:500px;margin:auto}
+h1{color:#00ff88;text-align:center}
+.card{background:#1a1a1a;padding:15px;border-radius:12px;margin:10px 0;border:1px solid #333}
+input,button{width:100%;padding:12px;margin:5px 0;border-radius:8px;border:none;font-size:16px}
+input{background:#222;color:white}
+button{background:#00ff88;color:black;font-weight:bold}
+.ex{padding:10px;background:#222;margin:5px 0;border-radius:8px;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<h1>💪 Gym Tracker</h1>
+<div class="card">
+<input id="ex" placeholder="Exercise Name (e.g. Bench Press)">
+<input id="wt" type="number" placeholder="Weight (kg)">
+<input id="rp" type="number" placeholder="Reps">
+<button onclick="add()">Add Workout</button>
+</div>
+<div id="list"></div>
+<div class="card"><h3>Today's Total: <span id="total">0</span> sets</h3><button onclick="clearAll()" style="background:#ff4444;color:white">Clear All</button></div>
+<script>
+let data = JSON.parse(localStorage.getItem('gym')||'[]');
+function render(){
+let l=document.getElementById('list');l.innerHTML='';document.getElementById('total').innerText=data.length;
+data.forEach((d,i)=>{l.innerHTML+=`<div class=ex><span>${d.ex} - ${d.wt}kg x ${d.rp}</span><span onclick="del(${i})" style="color:red">X</span></div>`});
+localStorage.setItem('gym',JSON.stringify(data));
+}
+function add(){let ex=document.getElementById('ex').value,wt=document.getElementById('wt').value,rp=document.getElementById('rp').value;if(!ex||!wt||!rp)return alert('Fill all');data.push({ex,wt,rp});render();ex.value='';}
+function del(i){data.splice(i,1);render();}
+function clearAll(){if(confirm('Clear?')){data=[];render();}}
+render();
+</script>
+</body>
+</html>
